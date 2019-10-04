@@ -1,0 +1,27 @@
+<!doctype html>
+<html class="no-js" lang="">
+<head>
+  <meta charset="utf-8">
+  <title>Headmaster2</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body>
+  <h1>Cohort Page</h1>
+  <main>{{{cohortsListHTML}}}</main>
+
+  <form action="/cohorts" method="post">
+    <label>Cohort title:</label>
+    <input type="text" name="title" />
+
+    <label>Slug:</label>
+    <input type="text" name="slug" />
+
+    <button type="submit">Add Cohort</button>
+  </form>
+</body>
+
+</html>
