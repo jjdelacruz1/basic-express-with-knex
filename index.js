@@ -13,6 +13,7 @@ const port = 3000
 // Express.js Endpoints
 
 const homepageTemplate = fs.readFileSync('./templates/homepage.mustache', 'utf8')
+const cohortTemplate = fs.readFileSync('./templates/cohort.mustache', 'utf8')
 
 app.use(express.urlencoded())
 
@@ -36,7 +37,7 @@ app.post('/cohorts', function (req, res) {
 app.get('/cohorts/:slug', function (req, res) {
   getOneCohort(req.params.slug)
     .then(function (cohort) {
-      res.send('<pre>' + prettyPrintJSON(cohort) + '</pre>')
+      res.send(mustache.render(cohortTemplate, { renderCohort: getOneCohort(cohort) }))
     })
     .catch(function (err) {
       res.status(404).send('cohort not found :(')
