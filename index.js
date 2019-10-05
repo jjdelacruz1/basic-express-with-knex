@@ -37,7 +37,7 @@ app.post('/cohorts', function (req, res) {
 app.get('/cohorts/:slug', function (req, res) {
   getOneCohort(req.params.slug)
     .then(function (cohort) {
-      res.send(mustache.render(cohortTemplate, { renderCohort: getOneCohort(cohort) }))
+      res.send(mustache.render(cohortTemplate, { oneCohortHTML: renderCohort(cohort) }))
     })
     .catch(function (err) {
       res.status(404).send('cohort not found :(')
