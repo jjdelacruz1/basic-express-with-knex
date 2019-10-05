@@ -25,6 +25,27 @@ exports.seed = function(knex) {
           isActive: true,
           cohortId: 2
         }
+        ,
+        {
+          name: 'Jerome',
+          isActive: true,
+          cohortId: 2
+        },
+        {
+          name: 'Alvin',
+          isActive: true,
+          cohortId: 2
+        },
+        {
+          name: 'Andy',
+          isActive: true,
+          cohortId: 2
+        },
+        {
+          name: 'Paige',
+          isActive: true,
+          cohortId: 2
+        }
       ]);
     });
 };

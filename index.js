@@ -14,6 +14,7 @@ const port = 3000
 
 const homepageTemplate = fs.readFileSync('./templates/homepage.mustache', 'utf8')
 const cohortTemplate = fs.readFileSync('./templates/cohort.mustache', 'utf8')
+const studentTemplate = fs.readFileSync('./templates/student.mustache', 'utf8')
 
 app.use(express.urlencoded())
 
@@ -37,10 +38,24 @@ app.post('/cohorts', function (req, res) {
 app.get('/cohorts/:slug', function (req, res) {
   getOneCohort(req.params.slug)
     .then(function (cohort) {
-      res.send(mustache.render(cohortTemplate, { oneCohortHTML: renderCohort(cohort) }))
+      res.send(mustache.render(cohortTemplate, { oneCohortHTML: singleCohort(cohort) }))
     })
     .catch(function (err) {
       res.status(404).send('cohort not found :(')
+    })
+})
+
+app.get('/students', function (req, res) {
+  getAllStudents()
+    .then(function (allStudents) {
+      res.send(mustache.render(studentTemplate, { studentsListHTML: renderAllStudents(allStudents) }))
+    })
+})
+
+app.get('/students/:id', function (req, res) {
+  getOneStudent(req.params.slug)
+    .then(function (student) {
+      res.send(mustache.render(studentTemplate, { oneStudentHTML: singleStudent(student)}))
     })
 })
 
@@ -55,8 +70,23 @@ function renderCohort (cohort) {
   return `<li><a href="/cohorts/${cohort.slug}">${cohort.title}</a></li>`
 }
 
+function singleCohort (cohort) {
+  return `<h1>${cohort.title}</h1>
+          <h3>${cohort.startDate}</h3>
+          <h3>${cohort.endDate}</h3>
+          `
+}
+
 function renderAllCohorts (allCohorts) {
   return '<ul>' + allCohorts.map(renderCohort).join('') + '</ul>'
+}
+
+function renderStudent (student) {
+  return `<li><a href="/student/${student.slug}">${student}</a></li>`
+}
+
+function renderAllStudents (allStudents) {
+  return '<ul' + allStudents.map(renderStudent).join('') + '</ul>'
 }
 
 // -----------------------------------------------------------------------------
@@ -67,8 +97,17 @@ const getAllCohortsQuery = `
   FROM Cohorts
 `
 
+const getAllStudentsQuery = `
+  SELECT *
+  FROM Students
+`
+
 function getAllCohorts () {
   return db.raw(getAllCohortsQuery)
+}
+
+function getAllStudents () {
+  return db.raw(getAllStudentsQuery)
 }
 
 function getOneCohort (slug) {
@@ -79,6 +118,13 @@ function getOneCohort (slug) {
       } else {
         return results[0]
       }
+    })
+}
+
+function getOneStudent (slug) {
+  return db.raw('SELECT * FROM Students WHERE slug = ?', [slug])
+    .then(function (results) {
+      return results[0]
     })
 }
 
