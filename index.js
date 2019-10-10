@@ -3,11 +3,19 @@ const mustache = require('mustache')
 
 const express = require('express')
 const app = express()
+const cors = require('cors')
+const bodyParser = require('body-parser')
+const session = require('express-session')
+
 
 const dbConfigs = require('./knexfile.js')
 const db = require('knex')(dbConfigs.development)
 
 const port = 3000
+
+app.use(cors())
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(session({ secret: 'hello' }))
 
 // -----------------------------------------------------------------------------
 // Express.js Endpoints
@@ -15,10 +23,15 @@ const port = 3000
 const homepageTemplate = fs.readFileSync('./templates/homepage.mustache', 'utf8')
 const cohortTemplate = fs.readFileSync('./templates/cohort.mustache', 'utf8')
 const studentTemplate = fs.readFileSync('./templates/student.mustache', 'utf8')
+const loginTemplate = fs.readFileSync('./templates/login.mustache', 'utf8')
 
 app.use(express.urlencoded())
 
 app.get('/', function (req, res) {
+  res.send(mustache.render(loginTemplate))
+})
+
+app.get('/cohorts', function (req, res) {
   getAllCohorts()
     .then(function (allCohorts) {
       res.send(mustache.render(homepageTemplate, { cohortsListHTML: renderAllCohorts(allCohorts) }))
@@ -138,3 +151,46 @@ function createCohort (cohort) {
 function prettyPrintJSON (x) {
   return JSON.stringify(x, null, 2)
 }
+
+/*  PASSPORT SETUP  */
+
+const passport = require('passport');
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.get('/success', (req, res) => res.send("You have successfully logged in"));
+app.get('/error', (req, res) => res.send("error logging in"));
+
+passport.serializeUser(function(user, cb) {
+  cb(null, user);
+});
+
+passport.deserializeUser(function(obj, cb) {
+  cb(null, obj);
+});
+
+/*  FACEBOOK AUTH  */
+
+const FacebookStrategy = require('passport-facebook').Strategy;
+
+const FACEBOOK_APP_ID = '2599590183425632';
+const FACEBOOK_APP_SECRET = '7d8860dd6deeeb4dc421533c518212e2';
+
+passport.use(new FacebookStrategy({
+    clientID: FACEBOOK_APP_ID,
+    clientSecret: FACEBOOK_APP_SECRET,
+    callbackURL: "/auth/facebook/callback"
+  },
+  function(accessToken, refreshToken, profile, cb) {
+      return cb(null, profile);
+  }
+));
+
+app.get('/auth/facebook',
+  passport.authenticate('facebook'));
+
+app.get('/auth/facebook/callback',
+  passport.authenticate('facebook', { failureRedirect: '/error' }),
+  function(req, res) {
+    res.redirect('/success');
+  });
