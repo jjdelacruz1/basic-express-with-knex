@@ -27,15 +27,27 @@ const loginTemplate = fs.readFileSync('./templates/login.mustache', 'utf8')
 
 app.use(express.urlencoded())
 
+// app.all("/cohorts", function(req, res, next) {
+//   if(req.isAuthenticated()) {
+//     console.log("isAuthenticated");
+//     next();
+//   } else {
+//     res.redirect("/");
+//   }
+//  });
+
 app.get('/', function (req, res) {
   res.send(mustache.render(loginTemplate))
 })
 
+
 app.get('/cohorts', function (req, res) {
-  getAllCohorts()
+    console.log("req.isAuthenticated()", req.isAuthenticated());
+    getAllCohorts()
     .then(function (allCohorts) {
       res.send(mustache.render(homepageTemplate, { cohortsListHTML: renderAllCohorts(allCohorts) }))
     })
+
 })
 
 app.post('/cohorts', function (req, res) {
@@ -158,8 +170,13 @@ const passport = require('passport');
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.get('/success', (req, res) => res.send("You have successfully logged in"));
+app.get('/success', (req, res) => res.redirect('/cohorts'));
 app.get('/error', (req, res) => res.send("error logging in"));
+
+app.get('/logout', function(req, res){
+  req.logout();
+  res.redirect('/');
+});
 
 passport.serializeUser(function(user, cb) {
   cb(null, user);
