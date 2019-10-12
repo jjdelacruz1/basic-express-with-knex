@@ -1,12 +1,11 @@
 const fs = require('fs')
 const mustache = require('mustache')
-
+require('dotenv').config()
 const express = require('express')
 const app = express()
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const session = require('express-session')
-
 
 const dbConfigs = require('./knexfile.js')
 const db = require('knex')(dbConfigs.development)
@@ -190,8 +189,8 @@ passport.deserializeUser(function(obj, cb) {
 
 const FacebookStrategy = require('passport-facebook').Strategy;
 
-const FACEBOOK_APP_ID = '2599590183425632';
-const FACEBOOK_APP_SECRET = '7d8860dd6deeeb4dc421533c518212e2';
+const FACEBOOK_APP_ID = process.env.FB_API_KEY;
+const FACEBOOK_APP_SECRET = process.env.FB_APP_SECRET;
 
 passport.use(new FacebookStrategy({
     clientID: FACEBOOK_APP_ID,
